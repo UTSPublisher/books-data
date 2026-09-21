@@ -44,6 +44,20 @@
       gap: 1rem;
     }
 
+    /* Header Branding Wrapper (Logo + Text) */
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* Logo Image Styling */
+    .header-logo {
+      height: 48px;
+      width: auto;
+      object-fit: contain;
+    }
+
     header h1 {
       font-size: 1.85rem;
       color: var(--text-main);
@@ -308,9 +322,12 @@
 
   <div class="container">
     <header>
-      <div>
-        <h1>UTS Publisher Dashboard</h1>
-        <p>Book Citations & Downloads Record</p>
+      <div class="header-brand">
+        <img src="logo.png" alt="UTS Logo" class="header-logo">
+        <div>
+          <h1>UTS Publisher Dashboard</h1>
+          <p>Book Citations & Downloads Record</p>
+        </div>
       </div>
       <span class="badge">Live Dataset</span>
     </header>
