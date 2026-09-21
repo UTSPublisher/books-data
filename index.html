@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UTS Publisher — Books Data</title>
+  <title>UTS Publisher — Dashboard Citations & Downloads</title>
+  <!-- Chart.js Library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
       --bg: #0f172a;
@@ -44,14 +46,12 @@
       gap: 1rem;
     }
 
-    /* Header Branding Wrapper (Logo + Text) */
     .header-brand {
       display: flex;
       align-items: center;
       gap: 1rem;
     }
 
-    /* Logo Image Styling */
     .header-logo {
       height: 48px;
       width: auto;
@@ -129,6 +129,41 @@
       font-size: 2rem;
       color: var(--accent);
       line-height: 1.1;
+    }
+
+    /* Charts Section */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 850px) {
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chart-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 0.85rem;
+      padding: 1.25rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    }
+
+    .chart-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 1rem;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 260px;
+      width: 100%;
     }
 
     /* Controls Bar */
@@ -258,7 +293,6 @@
       color: var(--text-main);
     }
 
-    /* Clickable Book Title Link */
     .book-title-link {
       cursor: pointer;
       color: var(--text-main);
@@ -280,7 +314,6 @@
       align-items: center;
     }
 
-    /* Interactive Author Tag Styling */
     .author-tag {
       color: var(--accent);
       cursor: pointer;
@@ -421,7 +454,7 @@
         <img src="logo.png?v=2" alt="UTS Logo" class="header-logo">
         <div>
           <h1>UTS Publisher Dashboard</h1>
-          <p>Book Citations & Downloads Data</p>
+          <p>Book Citations & Downloads Record</p>
         </div>
       </div>
       <span class="badge">Live Dataset</span>
@@ -444,6 +477,22 @@
       <div class="metric-card">
         <small>Top Published Author</small>
         <strong id="top-author" style="font-size: 1.1rem; padding-top: 0.4rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</strong>
+      </div>
+    </section>
+
+    <!-- Visual Analytics Charts Section -->
+    <section class="charts-grid">
+      <div class="chart-card">
+        <h3>Downloads & Citations by Year</h3>
+        <div class="chart-container">
+          <canvas id="timelineChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Publications by Type</h3>
+        <div class="chart-container">
+          <canvas id="typeChart"></canvas>
+        </div>
       </div>
     </section>
 
@@ -484,14 +533,15 @@
   </div>
 
   <script>
-    // 1. CONFIGURATION
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx_Kko2BCClwaUqvXjpClDatQuhmhY-LnwBVO38wg7yk5NTWd8sMX_Ni6OHijbwpKii/exec";
 
-    // 2. STATE MANAGEMENT
     let rawData = [];
     let filteredData = [];
 
-    // 3. FETCH LIVE DATA FROM GOOGLE APPS SCRIPT WEB APP
+    // Global Chart Objects for destroy/re-render lifecycle
+    let timelineChart = null;
+    let typeChart = null;
+
     async function loadSheetData() {
       const container = document.getElementById('books-container');
       container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem 0;">Loading live dataset...</p>`;
@@ -521,6 +571,7 @@
 
         initFilters();
         renderMetrics();
+        renderCharts();
         renderGrid();
 
       } catch (error) {
@@ -529,7 +580,6 @@
       }
     }
 
-    // 4. INITIALIZE SELECT DROPDOWNS
     function initFilters() {
       const yearSelect = document.getElementById('year-filter');
       const typeSelect = document.getElementById('type-filter');
@@ -555,7 +605,6 @@
       });
     }
 
-    // 5. RENDER METRICS CARDS & CALCULATE TOP AUTHOR
     function renderMetrics() {
       const totalCitations = filteredData.reduce((acc, curr) => acc + curr.citations, 0);
       const totalDownloads = filteredData.reduce((acc, curr) => acc + curr.downloads, 0);
@@ -564,7 +613,6 @@
       document.getElementById('total-citations').textContent = totalCitations;
       document.getElementById('total-downloads').textContent = totalDownloads;
 
-      // Find top published author dynamically
       const authorCounts = {};
       filteredData.forEach(book => {
         book.authors.split(/;|\n/).forEach(a => {
@@ -584,7 +632,113 @@
       document.getElementById('top-author').textContent = topAuthor;
     }
 
-    // 6. RENDER GRID CARDS WITH CLICKABLE AUTHORS & CLICKABLE TITLES
+    // Chart.js Aggregation & Rendering
+    function renderCharts() {
+      // 1. Group downloads and citations by year
+      const yearStats = {};
+      filteredData.forEach(item => {
+        if (item.year === 'N/A') return;
+        if (!yearStats[item.year]) {
+          yearStats[item.year] = { downloads: 0, citations: 0 };
+        }
+        yearStats[item.year].downloads += item.downloads;
+        yearStats[item.year].citations += item.citations;
+      });
+
+      const sortedYears = Object.keys(yearStats).sort((a, b) => a - b);
+      const downloadsData = sortedYears.map(y => yearStats[y].downloads);
+      const citationsData = sortedYears.map(y => yearStats[y].citations);
+
+      // Render Bar/Line Combo Chart
+      const ctxTimeline = document.getElementById('timelineChart').getContext('2d');
+      if (timelineChart) timelineChart.destroy();
+
+      timelineChart = new Chart(ctxTimeline, {
+        type: 'bar',
+        data: {
+          labels: sortedYears,
+          datasets: [
+            {
+              label: 'Downloads',
+              data: downloadsData,
+              backgroundColor: 'rgba(56, 189, 248, 0.6)',
+              borderColor: '#38bdf8',
+              borderWidth: 1,
+              borderRadius: 4
+            },
+            {
+              label: 'Citations',
+              data: citationsData,
+              type: 'line',
+              borderColor: '#f59e0b',
+              backgroundColor: '#f59e0b',
+              borderWidth: 2,
+              tension: 0.3,
+              pointRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#94a3b8' } }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#94a3b8' },
+              grid: { color: '#334155' }
+            },
+            y: {
+              ticks: { color: '#94a3b8' },
+              grid: { color: '#334155' }
+            }
+          }
+        }
+      });
+
+      // 2. Group publications by type
+      const typeCounts = {};
+      filteredData.forEach(item => {
+        typeCounts[item.type] = (typeCounts[item.type] || 0) + 1;
+      });
+
+      const typeLabels = Object.keys(typeCounts);
+      const typeValues = Object.values(typeCounts);
+
+      // Render Doughnut Chart
+      const ctxType = document.getElementById('typeChart').getContext('2d');
+      if (typeChart) typeChart.destroy();
+
+      typeChart = new Chart(ctxType, {
+        type: 'doughnut',
+        data: {
+          labels: typeLabels,
+          datasets: [{
+            data: typeValues,
+            backgroundColor: [
+              '#38bdf8',
+              '#818cf8',
+              '#c084fc',
+              '#f472b6',
+              '#34d399'
+            ],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: { color: '#94a3b8', font: { size: 11 } }
+            }
+          }
+        }
+      });
+    }
+
     function renderGrid() {
       const container = document.getElementById('books-container');
       container.innerHTML = '';
@@ -628,7 +782,6 @@
       });
     }
 
-    // 7. MODAL LOGIC FOR SYNOPSIS
     function openSynopsisModal(bookId) {
       const book = rawData.find(b => b.id.toString() === bookId.toString());
       if (!book) return;
@@ -637,12 +790,12 @@
       document.getElementById('modal-book-synopsis').textContent = book.synopsis;
       
       document.getElementById('synopsis-modal').classList.add('active');
-      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+      document.body.style.overflow = 'hidden';
     }
 
     function hideModal() {
       document.getElementById('synopsis-modal').classList.remove('active');
-      document.body.style.overflow = ''; // Restore scrolling
+      document.body.style.overflow = '';
     }
 
     function closeSynopsisModal(event) {
@@ -651,12 +804,10 @@
       }
     }
 
-    // Close modal on Escape key press
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') hideModal();
     });
 
-    // Helper: Filter when clicking an author tag
     function filterByAuthor(authorName) {
       const searchInput = document.getElementById('search-input');
       searchInput.value = authorName;
@@ -664,14 +815,12 @@
       filterData();
     }
 
-    // Helper: Clear search input
     function clearSearch() {
       document.getElementById('search-input').value = '';
       toggleClearButton();
       filterData();
     }
 
-    // Helper: Reset all search and dropdown filters
     function resetAllFilters() {
       document.getElementById('search-input').value = '';
       document.getElementById('year-filter').value = 'ALL';
@@ -680,14 +829,12 @@
       filterData();
     }
 
-    // Helper: Show/Hide clear button in search bar
     function toggleClearButton() {
       const searchInput = document.getElementById('search-input');
       const clearBtn = document.getElementById('clear-search-btn');
       clearBtn.style.display = searchInput.value ? 'block' : 'none';
     }
 
-    // 8. FILTER LOGIC
     function filterData() {
       const query = document.getElementById('search-input').value.toLowerCase();
       const year = document.getElementById('year-filter').value;
@@ -704,10 +851,10 @@
       });
 
       renderMetrics();
+      renderCharts();
       renderGrid();
     }
 
-    // EVENT LISTENERS
     document.getElementById('search-input').addEventListener('input', () => {
       toggleClearButton();
       filterData();
@@ -715,7 +862,6 @@
     document.getElementById('year-filter').addEventListener('change', filterData);
     document.getElementById('type-filter').addEventListener('change', filterData);
 
-    // INITIAL LOAD
     loadSheetData();
   </script>
 </body>
