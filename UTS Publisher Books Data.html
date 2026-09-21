@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UTS Publisher — Dashboard Citations & Downloads</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --accent-glow: rgba(56, 189, 248, 0.2);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font);
+      line-height: 1.5;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header Section */
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2rem;
+      gap: 1rem;
+    }
+
+    header h1 {
+      font-size: 1.85rem;
+      color: var(--text-main);
+      letter-spacing: -0.025em;
+      font-weight: 700;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .badge {
+      background: rgba(56, 189, 248, 0.1);
+      color: var(--accent);
+      padding: 0.4rem 0.9rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .badge::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background-color: #22c55e;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #22c55e;
+    }
+
+    /* KPI Cards Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .metric-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 1.25rem;
+      border-radius: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent);
+    }
+
+    .metric-card small {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+
+    .metric-card strong {
+      font-size: 2rem;
+      color: var(--accent);
+      line-height: 1.1;
+    }
+
+    /* Controls Bar */
+    .controls {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .search-wrapper {
+      position: relative;
+      flex: 1;
+      min-width: 260px;
+    }
+
+    input, select {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 0.65rem 1rem;
+      border-radius: 0.6rem;
+      outline: none;
+      font-size: 0.9rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding-right: 2.5rem;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .clear-btn {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: none;
+    }
+
+    .clear-btn:hover {
+      color: var(--text-main);
+    }
+
+    .reset-filters-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.65rem 1rem;
+      border-radius: 0.6rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .reset-filters-btn:hover {
+      color: var(--text-main);
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    /* Publications Grid */
+    .books-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .book-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 0.85rem;
+      padding: 1.35rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .book-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 0 15px var(--accent-glow);
+    }
+
+    .book-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .book-id {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.03em;
+    }
+
+    .book-year {
+      font-size: 0.75rem;
+      background: var(--border);
+      color: var(--text-main);
+      padding: 0.15rem 0.55rem;
+      border-radius: 0.3rem;
+      font-weight: 600;
+    }
+
+    .book-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.6rem;
+      line-height: 1.35;
+      color: var(--text-main);
+    }
+
+    .book-authors {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1.2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem 0.25rem;
+      align-items: center;
+    }
+
+    /* Interactive Author Tag Styling */
+    .author-tag {
+      color: var(--accent);
+      cursor: pointer;
+      background: rgba(56, 189, 248, 0.08);
+      padding: 0.1rem 0.45rem;
+      border-radius: 0.25rem;
+      border: 1px solid rgba(56, 189, 248, 0.15);
+      transition: all 0.15s ease;
+      display: inline-block;
+    }
+
+    .author-tag:hover {
+      background: var(--accent);
+      color: #0f172a;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .book-stats {
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid var(--border);
+      padding-top: 0.85rem;
+      margin-top: auto;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .stat-item {
+      display: flex;
+      gap: 0.35rem;
+      align-items: center;
+    }
+
+    .stat-value {
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div>
+        <h1>UTS Publisher Dashboard</h1>
+        <p>Book Citations & Downloads Record</p>
+      </div>
+      <span class="badge">Live Dataset</span>
+    </header>
+
+    <!-- Top KPI Dashboard Cards -->
+    <section class="metrics-grid">
+      <div class="metric-card">
+        <small>Total Publications</small>
+        <strong id="total-books">0</strong>
+      </div>
+      <div class="metric-card">
+        <small>Total Citations</small>
+        <strong id="total-citations">0</strong>
+      </div>
+      <div class="metric-card">
+        <small>Total Downloads</small>
+        <strong id="total-downloads">0</strong>
+      </div>
+      <div class="metric-card">
+        <small>Top Published Author</small>
+        <strong id="top-author" style="font-size: 1.1rem; padding-top: 0.4rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</strong>
+      </div>
+    </section>
+
+    <!-- Filters & Search Controls -->
+    <div class="controls">
+      <div class="search-wrapper">
+        <input type="text" id="search-input" placeholder="Search title, author, or ISBN...">
+        <button class="clear-btn" id="clear-search-btn" onclick="clearSearch()">&times;</button>
+      </div>
+      <select id="year-filter">
+        <option value="ALL">All Years</option>
+      </select>
+      <select id="type-filter">
+        <option value="ALL">All Types</option>
+      </select>
+      <button class="reset-filters-btn" onclick="resetAllFilters()">Reset Filters</button>
+    </div>
+
+    <!-- Main Output Grid -->
+    <div class="books-grid" id="books-container"></div>
+
+    <footer>
+      <p>UTS Publisher &bull; Automated Dashboard</p>
+    </footer>
+  </div>
+
+  <script>
+    // 1. CONFIGURATION
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxtBpA65zTqTwo3HLJWUkUS0lK0E4cyJX4xJgow-NC18ApT44JRaJxGATjz8CCvj8vu/exec";
+
+    // 2. STATE MANAGEMENT
+    let rawData = [];
+    let filteredData = [];
+
+    // 3. FETCH LIVE DATA FROM GOOGLE APPS SCRIPT WEB APP
+    async function loadSheetData() {
+      const container = document.getElementById('books-container');
+      container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem 0;">Loading live dataset...</p>`;
+
+      try {
+        const response = await fetch(WEB_APP_URL);
+        const data = await response.json();
+
+        if (!data || data.length === 0) {
+          container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem 0;">No records found in Google Sheet.</p>`;
+          return;
+        }
+
+        rawData = data.map(item => ({
+          id: item.id || 'N/A',
+          year: parseInt(item.year) || 'N/A',
+          authors: item.authors || 'Unknown',
+          title: item.title || 'Untitled',
+          type: item.type || 'Scholarly Book',
+          isbn: item.isbn || 'N/A',
+          citations: parseInt(item.citations) || 0,
+          downloads: parseInt(item.downloads) || 0
+        }));
+
+        filteredData = [...rawData];
+
+        initFilters();
+        renderMetrics();
+        renderGrid();
+
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #ef4444; padding: 3rem 0;">Failed to load data. Please verify your connection.</p>`;
+      }
+    }
+
+    // 4. INITIALIZE SELECT DROPDOWNS
+    function initFilters() {
+      const yearSelect = document.getElementById('year-filter');
+      const typeSelect = document.getElementById('type-filter');
+
+      yearSelect.innerHTML = '<option value="ALL">All Years</option>';
+      typeSelect.innerHTML = '<option value="ALL">All Types</option>';
+
+      const years = [...new Set(rawData.map(b => b.year))].filter(y => y !== 'N/A').sort((a,b) => b - a);
+      const types = [...new Set(rawData.map(b => b.type))].sort();
+
+      years.forEach(yr => {
+        const option = document.createElement('option');
+        option.value = yr;
+        option.textContent = yr;
+        yearSelect.appendChild(option);
+      });
+
+      types.forEach(tp => {
+        const option = document.createElement('option');
+        option.value = tp;
+        option.textContent = tp;
+        typeSelect.appendChild(option);
+      });
+    }
+
+    // 5. RENDER METRICS CARDS & CALCULATE TOP AUTHOR
+    function renderMetrics() {
+      const totalCitations = filteredData.reduce((acc, curr) => acc + curr.citations, 0);
+      const totalDownloads = filteredData.reduce((acc, curr) => acc + curr.downloads, 0);
+
+      document.getElementById('total-books').textContent = filteredData.length;
+      document.getElementById('total-citations').textContent = totalCitations;
+      document.getElementById('total-downloads').textContent = totalDownloads;
+
+      // Find top published author dynamically
+      const authorCounts = {};
+      filteredData.forEach(book => {
+        book.authors.split(/;|\n/).forEach(a => {
+          const name = a.trim();
+          if (name) authorCounts[name] = (authorCounts[name] || 0) + 1;
+        });
+      });
+
+      let topAuthor = '-';
+      let maxCount = 0;
+      for (const [author, count] of Object.entries(authorCounts)) {
+        if (count > maxCount) {
+          maxCount = count;
+          topAuthor = `${author} (${count})`;
+        }
+      }
+      document.getElementById('top-author').textContent = topAuthor;
+    }
+
+    // 6. RENDER GRID CARDS WITH CLICKABLE AUTHORS
+    function renderGrid() {
+      const container = document.getElementById('books-container');
+      container.innerHTML = '';
+
+      if (filteredData.length === 0) {
+        container.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 3rem 0; color: var(--text-muted);">
+            <p style="margin-bottom: 1rem;">No publications match your current filters.</p>
+            <button class="reset-filters-btn" onclick="resetAllFilters()">Clear Filters</button>
+          </div>`;
+        return;
+      }
+
+      filteredData.forEach(book => {
+        const authorsList = book.authors
+          .split(/;|\n/)
+          .map(author => author.trim())
+          .filter(author => author.length > 0)
+          .map(author => `<span class="author-tag" onclick="filterByAuthor('${author.replace(/'/g, "\\'")}')">${author}</span>`)
+          .join(' ');
+
+        const card = document.createElement('div');
+        card.className = 'book-card';
+        card.innerHTML = `
+          <div>
+            <div class="book-meta">
+              <span class="book-id">${book.id}</span>
+              <span class="book-year">${book.year}</span>
+            </div>
+            <div class="book-title">${book.title}</div>
+            <div class="book-authors">${authorsList}</div>
+          </div>
+          <div class="book-stats">
+            <div class="stat-item">Citations: <span class="stat-value">${book.citations}</span></div>
+            <div class="stat-item">Downloads: <span class="stat-value">${book.downloads}</span></div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Helper: Filter when clicking an author tag
+    function filterByAuthor(authorName) {
+      const searchInput = document.getElementById('search-input');
+      searchInput.value = authorName;
+      toggleClearButton();
+      filterData();
+    }
+
+    // Helper: Clear search input
+    function clearSearch() {
+      document.getElementById('search-input').value = '';
+      toggleClearButton();
+      filterData();
+    }
+
+    // Helper: Reset all search and dropdown filters
+    function resetAllFilters() {
+      document.getElementById('search-input').value = '';
+      document.getElementById('year-filter').value = 'ALL';
+      document.getElementById('type-filter').value = 'ALL';
+      toggleClearButton();
+      filterData();
+    }
+
+    // Helper: Show/Hide clear button in search bar
+    function toggleClearButton() {
+      const searchInput = document.getElementById('search-input');
+      const clearBtn = document.getElementById('clear-search-btn');
+      clearBtn.style.display = searchInput.value ? 'block' : 'none';
+    }
+
+    // 7. FILTER LOGIC
+    function filterData() {
+      const query = document.getElementById('search-input').value.toLowerCase();
+      const year = document.getElementById('year-filter').value;
+      const type = document.getElementById('type-filter').value;
+
+      filteredData = rawData.filter(book => {
+        const matchesSearch = book.title.toLowerCase().includes(query) || 
+                              book.authors.toLowerCase().includes(query) || 
+                              book.isbn.toString().toLowerCase().includes(query);
+        const matchesYear = (year === 'ALL') || (book.year.toString() === year);
+        const matchesType = (type === 'ALL') || (book.type === type);
+
+        return matchesSearch && matchesYear && matchesType;
+      });
+
+      renderMetrics();
+      renderGrid();
+    }
+
+    // EVENT LISTENERS
+    document.getElementById('search-input').addEventListener('input', () => {
+      toggleClearButton();
+      filterData();
+    });
+    document.getElementById('year-filter').addEventListener('change', filterData);
+    document.getElementById('type-filter').addEventListener('change', filterData);
+
+    // INITIAL LOAD
+    loadSheetData();
+  </script>
+</body>
+</html>
