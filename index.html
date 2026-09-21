@@ -131,6 +131,55 @@
       line-height: 1.1;
     }
 
+    /* Clickable Total Publications Card Styling */
+    .clickable-card {
+      cursor: pointer;
+      position: relative;
+    }
+
+    .clickable-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
+
+    .clickable-card::after {
+      content: 'Click for details';
+      font-size: 0.65rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 0.2rem;
+    }
+
+    /* Modal Breakdown List Styling */
+    .type-breakdown-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .type-breakdown-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 1rem;
+    }
+
+    .type-breakdown-item:last-child {
+      border-bottom: none;
+    }
+
+    .type-count-badge {
+      background: var(--accent-glow);
+      color: var(--accent);
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-weight: 700;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
     /* Charts Section */
     .charts-grid {
       display: grid;
@@ -359,7 +408,7 @@
       color: var(--text-main);
     }
 
-    /* Synopsis Modal Styles */
+    /* Synopsis & Breakdown Modal Styles */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -457,7 +506,7 @@
   <div class="container">
     <header>
       <div class="header-brand">
-        <img src="logo.png?v=2" alt="UTS Logo" class="header-logo">
+        <img src="logo.png?v=2" alt="UTS Logo" class="header-logo" onerror="this.style.display='none'">
         <div>
           <h1>UTS Publisher Dashboard</h1>
           <p>Book Citations & Downloads Record</p>
@@ -468,7 +517,7 @@
 
     <!-- Top KPI Dashboard Cards -->
     <section class="metrics-grid">
-      <div class="metric-card">
+      <div class="metric-card clickable-card" onclick="openTypeBreakdownModal()">
         <small>Total Publications</small>
         <strong id="total-books">0</strong>
       </div>
@@ -532,7 +581,7 @@
     </footer>
   </div>
 
-  <!-- Synopsis Modal Popup -->
+  <!-- Modal Popup for Synopsis & Publication Type Breakdown -->
   <div class="modal-overlay" id="synopsis-modal" onclick="closeSynopsisModal(event)">
     <div class="modal-card">
       <div class="modal-header">
@@ -796,7 +845,7 @@
       });
     }
 
-   function openSynopsisModal(bookId) {
+    function openSynopsisModal(bookId) {
       const book = rawData.find(b => b.id.toString() === bookId.toString());
       if (!book) return;
 
@@ -806,6 +855,39 @@
         <div>${book.synopsis}</div>
       `;
       
+      document.getElementById('synopsis-modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    // Modal popup function to show publication type counts breakdown
+    function openTypeBreakdownModal() {
+      const typeCounts = {};
+      filteredData.forEach(item => {
+        const type = item.type || 'Unspecified';
+        typeCounts[type] = (typeCounts[type] || 0) + 1;
+      });
+
+      document.getElementById('modal-book-title').textContent = 'Publications Breakdown';
+      
+      let breakdownHTML = '<ul class="type-breakdown-list">';
+      const sortedTypes = Object.entries(typeCounts).sort((a, b) => b[1] - a[1]);
+
+      if (sortedTypes.length === 0) {
+        breakdownHTML += '<li class="type-breakdown-item">No publications available</li>';
+      } else {
+        sortedTypes.forEach(([type, count]) => {
+          breakdownHTML += `
+            <li class="type-breakdown-item">
+              <span>${type}</span>
+              <span class="type-count-badge">${count}</span>
+            </li>
+          `;
+        });
+      }
+
+      breakdownHTML += '</ul>';
+
+      document.getElementById('modal-book-synopsis').innerHTML = breakdownHTML;
       document.getElementById('synopsis-modal').classList.add('active');
       document.body.style.overflow = 'hidden';
     }
