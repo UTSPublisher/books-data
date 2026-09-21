@@ -767,7 +767,7 @@
 
         const card = document.createElement('div');
         card.className = 'book-card';
-        card.innerHTML = `
+          card.innerHTML = `
           <div>
             <div class="book-meta">
               <span class="book-id">${book.id}</span>
@@ -777,6 +777,9 @@
               <span class="book-title-link" onclick="openSynopsisModal('${book.id}')">${book.title}</span>
             </div>
             <div class="book-authors">${authorsList}</div>
+            <div class="book-isbn" style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+              <strong>ISBN:</strong> ${book.isbn}
+            </div>
           </div>
           <div class="book-stats">
             <div class="stat-item">Citations: <span class="stat-value">${book.citations}</span></div>
