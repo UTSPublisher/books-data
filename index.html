@@ -496,7 +496,7 @@
       </div>
     </section>
 
-    <!-- Filters & Search Controls -->
+    <!-- Controls Bar -->
     <div class="controls">
       <div class="search-wrapper">
         <input type="text" id="search-input" placeholder="Search title, author, or ISBN...">
@@ -507,6 +507,13 @@
       </select>
       <select id="type-filter">
         <option value="ALL">All Types</option>
+      </select>
+      <select id="sort-filter">
+        <option value="NEWEST">Newest First</option>
+        <option value="OLDEST">Oldest First</option>
+        <option value="CITATIONS_DESC">Most Cited</option>
+        <option value="DOWNLOADS_DESC">Most Downloaded</option>
+        <option value="TITLE_ASC">Title (A-Z)</option>
       </select>
       <button class="reset-filters-btn" onclick="resetAllFilters()">Reset Filters</button>
     </div>
@@ -570,9 +577,7 @@
         filteredData = [...rawData];
 
         initFilters();
-        renderMetrics();
-        renderCharts();
-        renderGrid();
+        filterData(); // Applies initial filter and default sorting
 
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -825,6 +830,7 @@
       document.getElementById('search-input').value = '';
       document.getElementById('year-filter').value = 'ALL';
       document.getElementById('type-filter').value = 'ALL';
+      document.getElementById('sort-filter').value = 'NEWEST';
       toggleClearButton();
       filterData();
     }
@@ -839,7 +845,9 @@
       const query = document.getElementById('search-input').value.toLowerCase();
       const year = document.getElementById('year-filter').value;
       const type = document.getElementById('type-filter').value;
+      const sort = document.getElementById('sort-filter').value;
 
+      // 1. Filter
       filteredData = rawData.filter(book => {
         const matchesSearch = book.title.toLowerCase().includes(query) || 
                               book.authors.toLowerCase().includes(query) || 
@@ -850,6 +858,25 @@
         return matchesSearch && matchesYear && matchesType;
       });
 
+      // 2. Sort
+      filteredData.sort((a, b) => {
+        switch (sort) {
+          case 'NEWEST':
+            return (b.year === 'N/A' ? 0 : b.year) - (a.year === 'N/A' ? 0 : a.year);
+          case 'OLDEST':
+            return (a.year === 'N/A' ? 0 : a.year) - (b.year === 'N/A' ? 0 : b.year);
+          case 'CITATIONS_DESC':
+            return b.citations - a.citations;
+          case 'DOWNLOADS_DESC':
+            return b.downloads - a.downloads;
+          case 'TITLE_ASC':
+            return a.title.localeCompare(b.title);
+          default:
+            return 0;
+        }
+      });
+
+      // 3. Render Updated Views
       renderMetrics();
       renderCharts();
       renderGrid();
@@ -861,6 +888,7 @@
     });
     document.getElementById('year-filter').addEventListener('change', filterData);
     document.getElementById('type-filter').addEventListener('change', filterData);
+    document.getElementById('sort-filter').addEventListener('change', filterData);
 
     loadSheetData();
   </script>
