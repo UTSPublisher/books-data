@@ -258,6 +258,18 @@
       color: var(--text-main);
     }
 
+    /* Clickable Book Title Link */
+    .book-title-link {
+      cursor: pointer;
+      color: var(--text-main);
+      transition: color 0.15s ease;
+    }
+
+    .book-title-link:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
     .book-authors {
       font-size: 0.85rem;
       color: var(--text-muted);
@@ -306,6 +318,89 @@
     .stat-value {
       font-weight: 700;
       color: var(--text-main);
+    }
+
+    /* Synopsis Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+      padding: 1rem;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 0.85rem;
+      width: 100%;
+      max-width: 650px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 0 25px var(--accent-glow);
+      transform: scale(0.95);
+      transition: transform 0.25s ease;
+      overflow: hidden;
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.3;
+    }
+
+    .modal-close-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      line-height: 1;
+      cursor: pointer;
+      transition: color 0.15s ease;
+      padding: 0.2rem;
+    }
+
+    .modal-close-btn:hover {
+      color: var(--accent);
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
     }
 
     footer {
@@ -375,9 +470,22 @@
     </footer>
   </div>
 
+  <!-- Synopsis Modal Popup -->
+  <div class="modal-overlay" id="synopsis-modal" onclick="closeSynopsisModal(event)">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-book-title">Publication Synopsis</h2>
+        <button class="modal-close-btn" onclick="hideModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-book-synopsis">
+        Loading...
+      </div>
+    </div>
+  </div>
+
   <script>
     // 1. CONFIGURATION
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxtBpA65zTqTwo3HLJWUkUS0lK0E4cyJX4xJgow-NC18ApT44JRaJxGATjz8CCvj8vu/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx_Kko2BCClwaUqvXjpClDatQuhmhY-LnwBVO38wg7yk5NTWd8sMX_Ni6OHijbwpKii/exec";
 
     // 2. STATE MANAGEMENT
     let rawData = [];
@@ -405,7 +513,8 @@
           type: item.type || 'Scholarly Book',
           isbn: item.isbn || 'N/A',
           citations: parseInt(item.citations) || 0,
-          downloads: parseInt(item.downloads) || 0
+          downloads: parseInt(item.downloads) || 0,
+          synopsis: item.synopsis || 'No synopsis available for this publication.'
         }));
 
         filteredData = [...rawData];
@@ -475,7 +584,7 @@
       document.getElementById('top-author').textContent = topAuthor;
     }
 
-    // 6. RENDER GRID CARDS WITH CLICKABLE AUTHORS
+    // 6. RENDER GRID CARDS WITH CLICKABLE AUTHORS & CLICKABLE TITLES
     function renderGrid() {
       const container = document.getElementById('books-container');
       container.innerHTML = '';
@@ -505,7 +614,9 @@
               <span class="book-id">${book.id}</span>
               <span class="book-year">${book.year}</span>
             </div>
-            <div class="book-title">${book.title}</div>
+            <div class="book-title">
+              <span class="book-title-link" onclick="openSynopsisModal('${book.id}')">${book.title}</span>
+            </div>
             <div class="book-authors">${authorsList}</div>
           </div>
           <div class="book-stats">
@@ -516,6 +627,34 @@
         container.appendChild(card);
       });
     }
+
+    // 7. MODAL LOGIC FOR SYNOPSIS
+    function openSynopsisModal(bookId) {
+      const book = rawData.find(b => b.id.toString() === bookId.toString());
+      if (!book) return;
+
+      document.getElementById('modal-book-title').textContent = book.title;
+      document.getElementById('modal-book-synopsis').textContent = book.synopsis;
+      
+      document.getElementById('synopsis-modal').classList.add('active');
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+
+    function hideModal() {
+      document.getElementById('synopsis-modal').classList.remove('active');
+      document.body.style.overflow = ''; // Restore scrolling
+    }
+
+    function closeSynopsisModal(event) {
+      if (event.target.classList.contains('modal-overlay')) {
+        hideModal();
+      }
+    }
+
+    // Close modal on Escape key press
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') hideModal();
+    });
 
     // Helper: Filter when clicking an author tag
     function filterByAuthor(authorName) {
@@ -548,7 +687,7 @@
       clearBtn.style.display = searchInput.value ? 'block' : 'none';
     }
 
-    // 7. FILTER LOGIC
+    // 8. FILTER LOGIC
     function filterData() {
       const query = document.getElementById('search-input').value.toLowerCase();
       const year = document.getElementById('year-filter').value;
