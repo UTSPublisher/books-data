@@ -28,6 +28,7 @@
             width: 55px;
             height: 55px;
             object-fit: contain;
+            border-radius: 6px;
         }
         .header-text h1 {
             margin: 0;
@@ -173,7 +174,8 @@
 
     <header class="header">
         <div class="header-content">
-            <img src="logo.png" alt="UTS Publisher Logo" class="logo" onerror="this.style.display='none'">
+            <!-- Fallback to styled placeholder if image file is not found -->
+            <img src="logo.png" alt="UTS Publisher Logo" class="logo" onerror="this.onerror=null; this.src='https://via.placeholder.com/110x110/0f172a/38bdf8?text=UTS';">
             <div class="header-text">
                 <h1>UTS Publisher</h1>
                 <p>Books & Publication Data Dashboard</p>
@@ -190,18 +192,18 @@
         <section>
             <h2 class="section-title">Books Data</h2>
             <div class="cards">
-                <a href="books-data/" class="card">
+                <a href="books-data/" class="card" id="books-data-card">
                     <div class="card-icon">📚</div>
                     <h3>Citations & Downloads</h3>
                     <p>View citation and download data for UTS Publisher books, including Google Scholar and Crossref records.</p>
                     <span class="card-link">View Books Data →</span>
                 </a>
 
-                <a href="book-sales/" class="card">
+                <a href="book-sales/" class="card coming-soon" onclick="return false;">
                     <div class="card-icon">💰</div>
                     <h3>Book Sales <span class="badge">Coming Soon</span></h3>
                     <p>View sales information and statistics for UTS Publisher books.</p>
-                    <span class="card-link">View Book Sales →</span>
+                    <span class="card-link" style="color: #57606a;">View Book Sales →</span>
                 </a>
             </div>
         </section>
@@ -233,5 +235,14 @@
         UTS Publisher · University of Technology Sarawak
     </footer>
 
+    <!-- Optimization Script: Wakes up backend when user hovers over the Books Data link -->
+    <script>
+        const booksCard = document.getElementById('books-data-card');
+        if (booksCard) {
+            booksCard.addEventListener('mouseenter', () => {
+                fetch("https://script.google.com/macros/s/AKfycbx_Kko2BCClwaUqvXjpClDatQuhmhY-LnwBVO38wg7yk5NTWd8sMX_Ni6OHijbwpKii/exec", { mode: 'no-cors' });
+            });
+        }
+    </script>
 </body>
 </html>
