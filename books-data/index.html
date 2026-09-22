@@ -1,1 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTS Publisher | Books & Publication Data</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f6f8fa;
+            color: #24292f;
+        }
+        .header {
+            background: #ffffff;
+            border-bottom: 1px solid #d0d7de;
+            padding: 22px 30px;
+        }
+        .header-content {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .logo {
+            width: 55px;
+            height: 55px;
+            object-fit: contain;
+        }
+        .header-text h1 {
+            margin: 0;
+            font-size: 25px;
+            font-weight: 600;
+        }
+        .header-text p {
+            margin: 5px 0 0;
+            color: #57606a;
+            font-size: 14px;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 55px 25px 70px;
+        }
+        .welcome {
+            text-align: center;
+            margin-bottom: 45px;
+        }
+        .welcome h2 {
+            margin: 0 0 12px;
+            font-size: 32px;
+            font-weight: 600;
+        }
+        .welcome p {
+            margin: 0 auto;
+            max-width: 650px;
+            color: #57606a;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 18px;
+        }
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 22px;
+            margin-bottom: 45px;
+        }
+        .card {
+            display: block;
+            background: #ffffff;
+            border: 1px solid #d0d7de;
+            border-radius: 10px;
+            padding: 28px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.2s ease;
+        }
+        .card:hover {
+            border-color: #0969da;
+            box-shadow: 0 4px 12px rgba(27, 31, 36, 0.12);
+            transform: translateY(-2px);
+        }
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            background: #f0f6fc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+            margin-bottom: 18px;
+        }
+        .card h3 {
+            margin: 0 0 9px;
+            font-size: 19px;
+            font-weight: 600;
+        }
+        .card p {
+            margin: 0 0 20px;
+            color: #57606a;
+            line-height: 1.55;
+            font-size: 14px;
+        }
+        .card-link {
+            color: #0969da;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .coming-soon {
+            opacity: 0.75;
+            cursor: default;
+        }
+        .coming-soon:hover {
+            border-color: #d0d7de;
+            box-shadow: none;
+            transform: none;
+        }
+        .coming-soon .card-icon {
+            background: #f6f8fa;
+        }
+        .badge {
+            display: inline-block;
+            margin-left: 7px;
+            padding: 3px 8px;
+            border-radius: 20px;
+            background: #f6f8fa;
+            color: #57606a;
+            border: 1px solid #d0d7de;
+            font-size: 11px;
+            font-weight: 500;
+            vertical-align: middle;
+        }
+        .info-box {
+            background: #ffffff;
+            border: 1px solid #d0d7de;
+            border-radius: 10px;
+            padding: 25px 28px;
+        }
+        .info-box h3 {
+            margin: 0 0 10px;
+            font-size: 17px;
+        }
+        .info-box p {
+            margin: 0;
+            color: #57606a;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .footer {
+            border-top: 1px solid #d0d7de;
+            background: #ffffff;
+            text-align: center;
+            padding: 25px;
+            color: #57606a;
+            font-size: 13px;
+        }
+        @media (max-width: 700px) {
+            .cards { grid-template-columns: 1fr; }
+            .header-content { align-items: flex-start; }
+            .welcome h2 { font-size: 27px; }
+            .container { padding: 40px 18px 55px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-content">
+            <img src="../logo.png?v=2" alt="UTS Logo" class="header-logo" onerror="this.style.display='none'">
+            <div class="header-text">
+                <h1>UTS Publisher</h1>
+                <p>Books & Publication Data Dashboard</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="welcome">
+            <h2>Books & Publication Data</h2>
+            <p>Explore data and statistics related to publications produced by UTS Publisher.</p>
+        </section>
+
+        <section>
+            <h2 class="section-title">Books Data</h2>
+            <div class="cards">
+                <a href="books-data/" class="card">
+                    <div class="card-icon">📚</div>
+                    <h3>Citations & Downloads</h3>
+                    <p>View citation and download data for UTS Publisher books, including Google Scholar and Crossref records.</p>
+                    <span class="card-link">View Books Data →</span>
+                </a>
+
+                <a href="book-sales/" class="card">
+                    <div class="card-icon">💰</div>
+                    <h3>Book Sales <span class="badge">Coming Soon</span></h3>
+                    <p>View sales information and statistics for UTS Publisher books.</p>
+                    <span class="card-link">View Book Sales →</span>
+                </a>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="section-title">Other Information</h2>
+            <div class="cards">
+                <div class="card coming-soon">
+                    <div class="card-icon">📖</div>
+                    <h3>Publications <span class="badge">Coming Soon</span></h3>
+                    <p>Information about books and other publications published by UTS Publisher.</p>
+                </div>
+
+                <div class="card coming-soon">
+                    <div class="card-icon">📊</div>
+                    <h3>Other Data <span class="badge">Coming Soon</span></h3>
+                    <p>Additional publication-related data and statistics will be available here.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="info-box">
+            <h3>About this Dashboard</h3>
+            <p>This dashboard provides an overview of selected publication data maintained by UTS Publisher. Additional sections and datasets may be added as the dashboard develops.</p>
+        </section>
+    </main>
+
+    <footer class="footer">
+        UTS Publisher · University of Technology Sarawak
+    </footer>
+
+</body>
+</html>
 
