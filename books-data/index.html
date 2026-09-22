@@ -9,16 +9,16 @@
   <style>
     :root {
       --navy-dark: #0f172a;
-      --blue-primary: #003366; /* Updated to match UTS Publisher Logo Dark Blue */
+      --blue-primary: #2f2e7a; /* Updated Brand Blue */
       --blue-light: #72c0e8;
-      --orange-vibrant: #f38b1c;
-      --orange-hover: #d97706;
+      --orange-vibrant: #f47820; /* Updated Brand Orange */
+      --orange-hover: #d96716;
       --bg-main: #f8fafc;
       --card-bg: #ffffff;
       --text-dark: #1e293b;
       --text-muted: #64748b;
-      --border-color: #cbd5e1; /* Made border slightly darker for clearer definition */
-      --accent-glow: rgba(0, 51, 102, 0.12);
+      --border-color: #cbd5e1;
+      --accent-glow: rgba(47, 46, 122, 0.12);
       --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
     }
 
@@ -81,7 +81,7 @@
       border-radius: 9999px;
       font-size: 0.8rem;
       font-weight: 600;
-      border: 1px solid rgba(0, 51, 102, 0.2);
+      border: 1px solid rgba(47, 46, 122, 0.2);
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
@@ -174,12 +174,12 @@
     }
 
     .type-count-badge {
-      background: rgba(243, 139, 28, 0.12);
+      background: rgba(244, 120, 32, 0.12);
       color: var(--orange-vibrant);
       padding: 0.25rem 0.75rem;
       border-radius: 9999px;
       font-weight: 700;
-      border: 1px solid rgba(243, 139, 28, 0.3);
+      border: 1px solid rgba(244, 120, 32, 0.3);
     }
 
     /* Charts Section */
@@ -285,7 +285,7 @@
     .reset-filters-btn:hover {
       color: var(--orange-vibrant);
       border-color: var(--orange-vibrant);
-      background: rgba(243, 139, 28, 0.05);
+      background: rgba(244, 120, 32, 0.05);
     }
 
     /* Publications Grid */
@@ -295,7 +295,6 @@
       gap: 1.25rem;
     }
 
-    /* Updated Book Card Styling for Clear Visible Borders & Shadow */
     .book-card {
       background: var(--card-bg);
       border: 1.5px solid var(--border-color);
@@ -371,10 +370,10 @@
     .author-tag {
       color: var(--blue-primary);
       cursor: pointer;
-      background: rgba(114, 192, 232, 0.12);
+      background: rgba(47, 46, 122, 0.08);
       padding: 0.1rem 0.45rem;
       border-radius: 0.25rem;
-      border: 1px solid rgba(0, 51, 102, 0.18);
+      border: 1px solid rgba(47, 46, 122, 0.18);
       transition: all 0.15s ease;
       display: inline-block;
     }
@@ -700,7 +699,6 @@
 
     // Chart.js Aggregation & Rendering
     function renderCharts() {
-      // 1. Group downloads and citations by year
       const yearStats = {};
       filteredData.forEach(item => {
         if (item.year === 'N/A') return;
@@ -715,7 +713,7 @@
       const downloadsData = sortedYears.map(y => yearStats[y].downloads);
       const citationsData = sortedYears.map(y => yearStats[y].citations);
 
-      // Render Bar/Line Combo Chart with Updated Brand Colors
+      // Render Bar/Line Combo Chart with New Palette
       const ctxTimeline = document.getElementById('timelineChart').getContext('2d');
       if (timelineChart) timelineChart.destroy();
 
@@ -727,8 +725,8 @@
             {
               label: 'Downloads',
               data: downloadsData,
-              backgroundColor: 'rgba(0, 51, 102, 0.85)',
-              borderColor: '#003366',
+              backgroundColor: 'rgba(47, 46, 122, 0.85)',
+              borderColor: '#2f2e7a',
               borderWidth: 1,
               borderRadius: 4
             },
@@ -736,8 +734,8 @@
               label: 'Citations',
               data: citationsData,
               type: 'line',
-              borderColor: '#f38b1c',
-              backgroundColor: '#f38b1c',
+              borderColor: '#f47820',
+              backgroundColor: '#f47820',
               borderWidth: 2,
               tension: 0.3,
               pointRadius: 4
@@ -763,7 +761,7 @@
         }
       });
 
-      // 2. Group publications by type
+      // Render Doughnut Chart with New Palette
       const typeCounts = {};
       filteredData.forEach(item => {
         typeCounts[item.type] = (typeCounts[item.type] || 0) + 1;
@@ -772,7 +770,6 @@
       const typeLabels = Object.keys(typeCounts);
       const typeValues = Object.values(typeCounts);
 
-      // Render Doughnut Chart with Updated Dark Blue Brand Palette
       const ctxType = document.getElementById('typeChart').getContext('2d');
       if (typeChart) typeChart.destroy();
 
@@ -783,8 +780,8 @@
           datasets: [{
             data: typeValues,
             backgroundColor: [
-              '#003366',
-              '#f38b1c',
+              '#2f2e7a',
+              '#f47820',
               '#72c0e8',
               '#10b981',
               '#8b5cf6'
@@ -866,7 +863,6 @@
       document.body.style.overflow = 'hidden';
     }
 
-    // Modal popup function to show publication type counts breakdown
     function openTypeBreakdownModal() {
       const typeCounts = {};
       filteredData.forEach(item => {
@@ -948,7 +944,6 @@
       const type = document.getElementById('type-filter').value;
       const sort = document.getElementById('sort-filter').value;
 
-      // 1. Filter
       filteredData = rawData.filter(book => {
         const matchesSearch = book.title.toLowerCase().includes(query) || 
                               book.authors.toLowerCase().includes(query) || 
@@ -959,7 +954,6 @@
         return matchesSearch && matchesYear && matchesType;
       });
 
-      // 2. Sort
       filteredData.sort((a, b) => {
         switch (sort) {
           case 'NEWEST':
@@ -977,7 +971,6 @@
         }
       });
 
-      // 3. Render Updated Views
       renderMetrics();
       renderCharts();
       renderGrid();
