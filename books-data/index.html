@@ -15,6 +15,8 @@
       --orange-hover: #d96716;
       --bg-main: #f8fafc;
       --card-bg: #ffffff;
+      --book-card-bg: #eef6fc; /* Super Light Blue for Book Cards */
+      --book-card-hover: #e2f0fd; /* Slightly deeper blue tint on hover */
       --text-dark: #1e293b;
       --text-muted: #64748b;
       --border-color: #cbd5e1;
@@ -296,7 +298,7 @@
     }
 
     .book-card {
-      background: var(--card-bg);
+      background: var(--book-card-bg); /* Super light blue background */
       border: 1.5px solid var(--border-color);
       border-top: 4px solid var(--blue-primary);
       border-radius: 0.85rem;
@@ -304,15 +306,16 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
     }
 
     .book-card:hover {
+      background: var(--book-card-hover);
       transform: translateY(-4px);
       border-color: var(--border-color);
       border-top-color: var(--orange-vibrant);
-      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08);
     }
 
     .book-meta {
@@ -331,11 +334,12 @@
 
     .book-year {
       font-size: 0.75rem;
-      background: #f1f5f9;
+      background: #ffffff;
       color: var(--navy-dark);
       padding: 0.15rem 0.55rem;
       border-radius: 0.3rem;
       font-weight: 600;
+      border: 1px solid var(--border-color);
     }
 
     .book-title {
@@ -370,7 +374,7 @@
     .author-tag {
       color: var(--blue-primary);
       cursor: pointer;
-      background: rgba(47, 46, 122, 0.08);
+      background: #ffffff;
       padding: 0.1rem 0.45rem;
       border-radius: 0.25rem;
       border: 1px solid rgba(47, 46, 122, 0.18);
