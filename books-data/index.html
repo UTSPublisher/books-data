@@ -408,8 +408,7 @@
       color: var(--text-main);
     }
 
-    /* Synopsis Modal Styles */
-    /* Synopsis & Breakdown Modal Styles */
+    /* Modal Popup Styles */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -519,7 +518,6 @@
 
     <!-- Top KPI Dashboard Cards -->
     <section class="metrics-grid">
-      <div class="metric-card">
       <div class="metric-card clickable-card" onclick="openTypeBreakdownModal()">
         <small>Total Publications</small>
         <strong id="total-books">0</strong>
@@ -584,7 +582,6 @@
     </footer>
   </div>
 
-  <!-- Synopsis Modal Popup -->
   <!-- Modal Popup for Synopsis & Publication Type Breakdown -->
   <div class="modal-overlay" id="synopsis-modal" onclick="closeSynopsisModal(event)">
     <div class="modal-card">
@@ -849,7 +846,6 @@
       });
     }
 
-   function openSynopsisModal(bookId) {
     function openSynopsisModal(bookId) {
       const book = rawData.find(b => b.id.toString() === bookId.toString());
       if (!book) return;
